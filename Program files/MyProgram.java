@@ -37,7 +37,7 @@ public class MyProgram
         String filter = "";
         while (true) {
             // Read filter name
-            System.out.print("Enter filter name: [sepia, warm, cool] ");
+            System.out.print("Enter filter name: [sepia, warm, cool, red, green, blue] ");
             filter = sc.nextLine().toLowerCase();
             
             // Apply filter
@@ -49,6 +49,15 @@ public class MyProgram
                 break;
             } else if (filter.equals("cool")) {
                 pixels = tint(pixels, false);
+                break;
+            } else if (filter.equals("red")) {
+                pixels = channel(pixels, "red");
+                break;
+            } else if (filter.equals("green")) {
+                pixels = channel(pixels, "green");
+                break;
+            } else if (filter.equals("blue")) {
+                pixels = channel(pixels, "blue");
                 break;
             } else {
                 System.out.println("Filter not found, please input a valid filter.");
@@ -146,16 +155,16 @@ public class MyProgram
         return pixelArr;
     }
 
-    // TODO: Channel Isolator, Posterization, Duotone
-
     // Temperature tint filter (warm and cool)
     // Params: pixelArr (type 2D int array), warm (boolean that determines warm or cool shift)
     // Precondition: Image was converted into a 2D array of RGB values
     // Postcondition: Altered 2D array output
     public static int[][] tint(int[][] pixelArr, boolean warm) {
 
+        // Filter intensity variable
         int intensity = 50;
 
+        // 2D array traversal
         for (int x = 0; x < pixelArr.length; x++) {
             for (int y = 0; y < pixelArr[0].length; y++) {
 
@@ -165,13 +174,48 @@ public class MyProgram
                 int G = color.getGreen();
                 int B = color.getBlue();
                 
-                // New values for temperature filter
+                // New values for temperature filter (warm and cool)
                 if (warm) {
                     R = Math.min(R + intensity, 255);
                     B = Math.max(B - intensity, 0);
                 } else {
                     R = Math.max(R - intensity, 0);
                     B = Math.min(B + intensity, 255);
+                }
+
+                // Turn RGB back into single integer for 2D array storage!
+                Color newColor = new Color(R, G, B);
+                pixelArr[x][y] = newColor.getRGB();
+            }
+        }
+        // Return 2D array
+        return pixelArr;
+    }
+
+    // TODO: Posterization, Duotone
+
+    public static int[][] channel(int[][] pixelArr, String channel) {
+
+        // 2D array traversal
+        for (int x = 0; x < pixelArr.length; x++) {
+            for (int y = 0; y < pixelArr[0].length; y++) {
+
+                // Get color from array integers
+                Color color = new Color(pixelArr[x][y]);
+                int R = color.getRed();
+                int G = color.getGreen();
+                int B = color.getBlue();
+                
+                // New values for each isolated channel (red, green, blue)
+                if (channel.equals("red")) {
+                    G = 0;
+                    B = 0;
+                } else if (channel.equals("green")) {
+                    R = 0;
+                    B = 0;
+                } else if (channel.equals("blue")) {
+                    R = 0;
+                    G = 0;
                 }
 
                 // Turn RGB back into single integer for 2D array storage!
