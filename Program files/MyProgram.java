@@ -37,7 +37,7 @@ public class MyProgram
         String filter = "";
         while (true) {
             // Read filter name
-            System.out.print("Enter filter name: [sepia, warm, cool, red, green, blue] ");
+            System.out.print("Enter filter name: [sepia, warm, cool, red, green, blue, posterize] ");
             filter = sc.nextLine().toLowerCase();
             
             // Apply filter
@@ -58,6 +58,9 @@ public class MyProgram
                 break;
             } else if (filter.equals("blue")) {
                 pixels = channel(pixels, "blue");
+                break;
+            } else if (filter.equals("posterize")) {
+                pixels = posterize(pixels);
                 break;
             } else {
                 System.out.println("Filter not found, please input a valid filter.");
@@ -192,8 +195,10 @@ public class MyProgram
         return pixelArr;
     }
 
-    // TODO: Posterization, Duotone
-
+    // Channel isolation filter (RGB)
+    // Params: pixelArr (type 2D int array), channel (String, determines which channel will be kept)
+    // Precondition: Image was converted into a 2D array of RGB values
+    // Postcondition: Altered 2D array output
     public static int[][] channel(int[][] pixelArr, String channel) {
 
         // 2D array traversal
@@ -226,4 +231,42 @@ public class MyProgram
         // Return 2D array
         return pixelArr;
     }
+
+    // TODO: Duotone
+
+    // Posterization filter
+    // Params: pixelArr (type 2D int array)
+    // Precondition: Image was converted into a 2D array of RGB values
+    // Postcondition: Altered 2D array output
+    public static int[][] posterize(int[][] pixelArr) {
+
+    // Got method from here! https://arielortiz.info/s202613/tc2038/image_processing/image_processing.html#_posterization
+        
+        // Factor variable (higher value -> less colors)
+        int factor = 64;
+
+        for (int x = 0; x < pixelArr.length; x++) {
+            for (int y = 0; y < pixelArr[0].length; y++) {
+
+                // Get color from array integers
+                Color color = new Color(pixelArr[x][y]);
+                int R = color.getRed();
+                int G = color.getGreen();
+                int B = color.getBlue();
+                
+                // New values from using integer division to reduce variation of color
+                R = (R / factor) * factor;
+                G = (G / factor) * factor;
+                B = (B / factor) * factor;
+
+                // Turn RGB back into single integer for 2D array storage!
+                Color newColor = new Color(R, G, B);
+                pixelArr[x][y] = newColor.getRGB();
+            }
+        }
+        // Return 2D array
+        return pixelArr;
+    }
+    
+    // Duotone prep https://medium.com/@elonskolnik/processing-image-manipulation-posterization-dcf89472a246
 }
