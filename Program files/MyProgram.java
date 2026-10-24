@@ -31,18 +31,28 @@ public class MyProgram
             }
         }
         
-        // Read filter name
-        System.out.print("Enter filter name: [sepia] ");
-        String filter = sc.nextLine().toLowerCase();
-        
-        // Apply filter
-        if (filter.equals("sepia")) {
-            image = sepia(image);
-        } else {
-            System.out.println("Filter not found, saving original image.");
+        // Turn image into 2D array
+        int[][] pixels = preProcessor(image);
+
+        String filter = "";
+        while (true) {
+            // Read filter name
+            System.out.print("Enter filter name: [sepia] ");
+            filter = sc.nextLine().toLowerCase();
+            
+            // Apply filter
+            if (filter.equals("sepia")) {
+                pixels = sepia(pixels);
+                break;
+            } else {
+                System.out.println("Filter not found, please input a valid filter.");
+            }
         }
+
+        // Turn 2D array back to image
+        postProcessor(image, pixels);
         
-        // Save image if possible
+        // Save image
         try {
             String outputName = "filtered_" + filter + "_" + filename;
             File output = new File(outputName);
@@ -55,28 +65,54 @@ public class MyProgram
         sc.close();
     }
     
-    // Sepia filter
+    // Image pre-processor (turns image into 2D array)
     // Params: img (type BufferedImage)
     // Precondition: Img format input
-    // Postcondition: Altered image, img format output
-    public static BufferedImage sepia(BufferedImage img) {
+    // Postcondition: 2D array output
+    public static int[][] preProcessor(BufferedImage img) {
         
         // 2D array setup from image (pixels)
         int width = img.getWidth();
         int height = img.getHeight();
         int[][] pixelArr = new int[width][height];
         
-            // 2D array traversal
+        // 2D array traversal
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 pixelArr[x][y] = img.getRGB(x, y);
             }
         }
-        
-        // Image alteration
-            // 2D array traversal
+        return pixelArr;
+    }
+
+    // Image post-processor (turns 2D array back to image)
+    // Params: img (type BufferedImage), pixelArr (type 2D int array)
+    // Precondition: img is the original image, pixelArr is the array with modified RGB values
+    // Postcondition: Altered image output
+    public static BufferedImage postProcessor(BufferedImage img, int[][] pixelArr) {
+
+        int width = pixelArr.length;
+        int height = pixelArr[0].length;
+
+        // 2D array traversal
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
+                img.setRGB(x, y, pixelArr[x][y]);
+            }
+        }
+        System.out.println("Filtered!");
+        return img;
+    }
+
+    // Sepia filter
+    // Params: pixelArr (type 2D int array)
+    // Precondition: Image was converted into a 2D array of RGB values
+    // Postcondition: Altered 2D array output
+    public static int[][] sepia(int[][] pixelArr) {
+
+        // 2D array traversal
+        for (int x = 0; x < pixelArr.length; x++) {
+            for (int y = 0; y < pixelArr[0].length; y++) {
                 // Get color from array integers
                 Color color = new Color(pixelArr[x][y]);
                 int R = color.getRed();
@@ -89,7 +125,7 @@ public class MyProgram
                 int newG = (int)(R*0.349 + G*0.686 + B*0.168);
                 int newB = (int)(R*0.272 + G*0.534 + B*0.131);
                 
-                    // Limiting values to 255 max
+                // Limiting values to 255 max
                 newR = Math.min(newR, 255);
                 newG = Math.min(newG, 255);
                 newB = Math.min(newB, 255);
@@ -99,16 +135,7 @@ public class MyProgram
                 pixelArr[x][y] = newColor.getRGB();
             }
         }
-        
-        // Convert 2D array back to image
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                img.setRGB(x, y, pixelArr[x][y]);
-            }
-        }
-        
-        System.out.println("Filtered!");
-        return img;
+        // Return 2D array
+        return pixelArr;
     }
-    
 }
