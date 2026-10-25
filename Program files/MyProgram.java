@@ -37,7 +37,7 @@ public class MyProgram
         String filter = "";
         while (true) {
             // Read filter name
-            System.out.print("Enter filter name: [sepia, warm, cool, red, green, blue, posterize] ");
+            System.out.print("Enter filter name: [sepia, warm, cool, red, green, blue, posterize, duotone] ");
             filter = sc.nextLine().toLowerCase();
             
             // Apply filter
@@ -61,6 +61,9 @@ public class MyProgram
                 break;
             } else if (filter.equals("posterize")) {
                 pixels = posterize(pixels);
+                break;
+            } else if (filter.equals("duotone")) {
+                pixels = duotone(pixels);
                 break;
             } else {
                 System.out.println("Filter not found, please input a valid filter.");
@@ -232,8 +235,6 @@ public class MyProgram
         return pixelArr;
     }
 
-    // TODO: Duotone
-
     // Posterization filter
     // Params: pixelArr (type 2D int array)
     // Precondition: Image was converted into a 2D array of RGB values
@@ -245,6 +246,7 @@ public class MyProgram
         // Factor variable (higher value -> less colors)
         int factor = 64;
 
+        // 2D array traversal
         for (int x = 0; x < pixelArr.length; x++) {
             for (int y = 0; y < pixelArr[0].length; y++) {
 
@@ -267,6 +269,44 @@ public class MyProgram
         // Return 2D array
         return pixelArr;
     }
+
+    // Duotone filter
+    // Params: pixelArr (type 2D int array)
+    // Precondition: Image was converted into a 2D array of RGB values
+    // Postcondition: Altered 2D array output
+    public static int[][] duotone(int[][] pixelArr) {
+
+    // Got method from here! https://medium.com/@elonskolnik/processing-image-manipulation-posterization-dcf89472a246
     
-    // Duotone prep https://medium.com/@elonskolnik/processing-image-manipulation-posterization-dcf89472a246
+        // Define two colors I like for the palette :D
+        Color light = new Color(255, 0, 166); // Pink
+        Color dark = new Color(27, 74, 255); // Blue
+
+        // Set cutoff for dark vs. light
+        int threshold = 128; // Middle of 0-255
+
+        // 2D array traversal
+        for (int x = 0; x < pixelArr.length; x++) {
+            for (int y = 0; y < pixelArr[0].length; y++) {
+
+                // Get color from array integers
+                Color color = new Color(pixelArr[x][y]);
+                int R = color.getRed();
+                int G = color.getGreen();
+                int B = color.getBlue();
+                
+                // Average brightness 
+                int brightness = (R + G + B) / 3;
+
+                // Replace pixel RGB value with palette based on brightness
+                if (brightness < threshold) {
+                    pixelArr[x][y] = dark.getRGB();
+                } else {
+                    pixelArr[x][y] = light.getRGB();
+                }
+            }
+        }
+        // Return 2D array with replaced pixels
+        return pixelArr;
+    }
 }
